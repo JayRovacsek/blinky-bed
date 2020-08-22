@@ -3,7 +3,7 @@
 #define DATA_PIN      5
 #define LED_TYPE      WS2811
 #define COLOR_ORDER   RGB
-#define NUM_LEDS      84
+#define NUM_LEDS      108
 
 CRGBArray<NUM_LEDS> leds;
 
@@ -14,7 +14,26 @@ void setup() {
   pinMode(LED, OUTPUT);
 }
 
-void loop() {
+void loop(){ 
+  static uint8_t hue;
+  for(int i = 0; i < NUM_LEDS; i++) {   
+    // fade everything out
+    leds.fadeToBlackBy(40);
+
+    // let's set an led value
+    leds[i] = CHSV(hue++,255,255);
+
+    // now, let's first 20 leds to the top 20 leds, 
+    FastLED.delay(35);
+  }
+}
+
+void not_setup() {
+  FastLED.addLeds<LED_TYPE, DATA_PIN>(leds, NUM_LEDS);
+  pinMode(LED, OUTPUT);
+}
+
+void not_loop() {
   uint8_t hue = 0;
   uint8_t delay_time;
   delay_time = 30;

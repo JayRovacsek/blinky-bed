@@ -11,8 +11,8 @@
 
 CRGBArray<NUM_LEDS> leds;
 
-const char *ssid = "notreallymyssid";
-const char *password = "notreallymypassword";
+const char *ssid = "SSID";
+const char *password = "password:)";
 
 void setup()
 {
@@ -32,7 +32,7 @@ void setup()
   // ArduinoOTA.setPort(3232);
 
   // Hostname defaults to esp3232-[MAC]
-  // ArduinoOTA.setHostname("myesp32");
+  ArduinoOTA.setHostname("blinky-bed");
 
   // No authentication by default
   // ArduinoOTA.setPassword("admin");
@@ -82,16 +82,11 @@ void setup()
 void loop()
 {
   ArduinoOTA.handle();
-  static uint8_t hue;
+  static uint8_t hue=0; 
   for (int i = 0; i < NUM_LEDS; i++)
   {
-    // fade everything out
-    leds.fadeToBlackBy(40);
-
-    // let's set an led value
-    leds[i] = CHSV(hue++, 255, 255);
-
-    // now, let's first 20 leds to the top 20 leds,
-    FastLED.delay(35);
+     leds[i] = CHSV(hue, 255, 255);
   }
+  FastLED.delay(100);
+  hue++;
 }

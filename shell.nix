@@ -1,11 +1,13 @@
 { pkgs ? import <nixpkgs> { } }:
-pkgs.mkShell {
-  name = "nix-config";
-  # https://micropython.org/download/rp2-pico-w/rp2-pico-w-latest.uf2
-  buildInputs = with pkgs; [
+let
+  basePackages = with pkgs; [
     nixfmt
+    # Despite supported systems including darwin, it appears broken on darwin.
     micropython
-    yapf
   ];
+  pythonPackages = with pkgs.python310Packages; [ autopep8 ];
+in pkgs.mkShell {
+  name = "nix-config";
+  buildInputs = basePackages ++ pythonPackages;
   shellHook = "";
 }

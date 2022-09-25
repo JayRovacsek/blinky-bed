@@ -1,3 +1,4 @@
+import _thread
 import json
 import machine
 import network
@@ -11,6 +12,9 @@ wlan = network.WLAN(network.STA_IF)
 rtc = machine.RTC()
 led = machine.Pin("LED", machine.Pin.OUT)
 HOUR = 60 * 60
+# Gross, but handling this via a global - secondary thread will mutate this to True
+# if LEDs should be running
+IS_DAYTIME = False
 
 
 def get_offset() -> int:
@@ -90,15 +94,38 @@ def setup() -> void:
         time.sleep(1)
 
 
+def check_daytime_loop():
+    while True:
+        current_state = globals()['IS_DAYTIME']
+        globals()['IS_DAYTIME'] = check_daytime()
+        if(current_state != IS_DAYTIME):
+            # Sleep at-least an hour if we just identified that IS_DAYTIME changed
+            # TODO: change this to sleep the anticipated day/night length based on
+            # previous API calls
+            time.sleep(HOUR * 1)
+        else:
+            time.sleep(600)
+
+
+def led_loop():
+    while True:
+        # Below is not implemented, but would manage LED values
+        if(globals()['IS_DAYTIME']):
+            time.sleep(1)
+            led.on()
+            time.sleep(1)
+            led.off()
+
+
 def main() -> void:
     led.on()
     setup()
 
+    _thread.start_new_thread(check_daytime_loop, ())
+
     while True:
-        is_daytime = check_daytime()
-        print(f"Is daytime: {is_daytime}")
-        print("Sleeping for 5 minutes")
-        time.sleep(600)
+        led_loop()
+        # Blink some LEDs here :thumbsup:
 
 
 if __name__ == "__main__":
